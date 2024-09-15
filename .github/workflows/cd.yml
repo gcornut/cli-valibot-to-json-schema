@@ -1,0 +1,99 @@
+# Continuous Delivery: Publish on NPM
+name: "CD"
+
+on:
+    push:
+        branches:
+            - main
+    workflow_dispatch:
+        inputs:
+            releaseType:
+                description: "Release type"
+                required: true
+                default: "prerelease"
+                type: string
+
+concurrency:
+    group: "${{ github.workflow }}-${{ github.ref_name }}"
+    cancel-in-progress: true
+
+jobs:
+    ci:
+        uses: ./.github/workflows/ci.yml
+
+    publish-snapshot:
+        if: ${{ inputs.releaseType == '' }}
+        needs: ci
+        runs-on: ubuntu-latest
+        permissions:
+            id-token: write
+        steps:
+            - name: "Checkout repository"
+              uses: actions/checkout@v4
+
+            - name: "Setup dependencies"
+              uses: ./.github/actions/setup
+              with:
+                  install_node: true
+
+            - name: "Create version"
+              id: version
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+              run: |
+                  npm deprecate @gcornut/cli-valibot-to-json-schema@0.1.1-snapshot.0 "snapshot"
+                  set -x # verbose
+                  name=$(npm pkg get name | sed 's/"//g')
+                  previousVersion=$(npm show $name@snapshot version)
+                  npm pkg set version=$previousVersion
+                  npm version prerelease --preid snapshot --git-tag-version false
+                  echo "name=$name" >> $GITHUB_OUTPUT
+                  echo "previousVersion=$previousVersion" >> $GITHUB_OUTPUT
+
+            - name: "Publish"
+              run: npm publish --provenance --access public --tag snapshot
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            - name: "Deprecate previous snapshot"
+              if: ${{ steps.version.outputs.previousVersion != '' }}
+              run: npm deprecate ${{ steps.version.outputs.name }}@${{ steps.version.outputs.previousVersion }} "snapshot"
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    publish-release:
+        if: ${{ inputs.releaseType != '' && github.ref_name == 'main'  }}
+        needs: ci
+        runs-on: ubuntu-latest
+        permissions:
+            id-token: write
+            contents: write
+        steps:
+            - name: "Checkout repository"
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: "Setup dependencies"
+              uses: ./.github/actions/setup
+              with:
+                  install_node: true
+
+            - name: "Bump version"
+              run: |
+                  set -x
+                  git config --global user.name "github-actions"
+                  git config --global user.email "github-actions@users.noreply.github.com"
+
+                  npm version ${{ inputs.releaseType }} --m "Release v%s" ${{ inputs.releaseType == 'prerelease' && '--preid rc' || '' }}
+
+                  git push
+                  git push --tags
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            - name: "Publish"
+              run: npm publish --provenance --access public ${{ inputs.releaseType == 'prerelease' && '--tag prerelease' || '' }}
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

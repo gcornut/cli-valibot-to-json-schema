@@ -1,0 +1,32 @@
+name: "Dependabot: Update bun.lockb"
+
+on:
+    pull_request:
+        paths:
+            - package.json
+
+permissions:
+    contents: write
+
+jobs:
+    update-bun-lockb:
+        name: "Update bun.lockb"
+        if: github.actor == 'dependabot[bot]'
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+                  ref: ${{ github.event.pull_request.head.ref }}
+
+            - uses: ./.github/actions/setup
+              with:
+                  frozen_lockfile: false
+
+            - run: |
+                  bun install
+                  git add bun.lockb
+                  git config --global user.name 'dependabot[bot]'
+                  git config --global user.email 'dependabot[bot]@users.noreply.github.com'
+                  git commit --amend --no-edit 
+                  git push --force

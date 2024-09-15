@@ -1,0 +1,64 @@
+{
+    "name": "@gcornut/cli-valibot-to-json-schema",
+    "description": "CLI wrapper for @valibot/to-json-schema",
+    "version": "0.1.0",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/gcornut/cli-valibot-to-json-schema.git"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "keywords": [
+        "valibot",
+        "schema",
+        "cli",
+        "json-schema"
+    ],
+    "type": "commonjs",
+    "files": [
+        "bin"
+    ],
+    "bin": "bin/index.js",
+    "sideEffects": false,
+    "scripts": {
+        "build": "tsup",
+        "prepublishOnly": "bun run build",
+        "run:cli": "esr cli",
+        "test": "vitest",
+        "type-check": "tsc -p tsconfig.json",
+        "lint": "eslint",
+        "format": "prettier .",
+        "check": "bun run type-check && bun run lint && bun run test --run",
+        "fix": "bun run format --write && bun run lint --fix"
+    },
+    "dependencies": {
+        "@valibot/to-json-schema": "^0.2.0"
+    },
+    "peerDependencies": {
+        "valibot": ">= 0.31.0"
+    },
+    "optionalDependencies": {
+        "esbuild-runner": ">= 2.2.2"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.10.0",
+        "@types/json-schema": "^7.0.15",
+        "@types/lodash": "^4.17.7",
+        "@types/node": "^22.5.2",
+        "@vitest/coverage-v8": "^2.0.5",
+        "commander": "^12.1.0",
+        "esbuild": "^0.23.1",
+        "esbuild-runner": "^2.2.2",
+        "eslint": "^9.10.0",
+        "globals": "^15.9.0",
+        "lodash": "^4.17.21",
+        "prettier": "^3.3.3",
+        "safe-stable-stringify": "^2.5.0",
+        "tsup": "^8.2.4",
+        "typescript": "5.5.4",
+        "typescript-eslint": "^8.5.0",
+        "valibot": "^0.42.0",
+        "vitest": "2.0.5"
+    }
+}

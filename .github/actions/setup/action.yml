@@ -1,0 +1,26 @@
+name: "Setup"
+description: "Setup dependencies and cache"
+
+inputs:
+    install_node:
+        description: "Setup node"
+
+    frozen_lockfile:
+        description: "Frozen lockfile"
+        default: "true"
+
+runs:
+    using: composite
+    steps:
+        - if: ${{ inputs.install_node == 'true' }}
+          uses: actions/setup-node@v4
+          with:
+              registry-url: "https://registry.npmjs.org/"
+
+        - uses: oven-sh/setup-bun@v2
+          with:
+              bun-version: latest
+
+        - name: "Install dependencies"
+          run: bun install ${{ inputs.frozen_lockfile == 'true' && '--frozen-lockfile' || '' }}
+          shell: bash

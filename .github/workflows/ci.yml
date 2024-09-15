@@ -1,0 +1,50 @@
+name: "CI"
+
+on:
+    workflow_call:
+    pull_request:
+        types: [opened, synchronize, reopened, ready_for_review]
+
+concurrency:
+    group: ${{ github.head_ref }}-ci
+    cancel-in-progress: true
+
+jobs:
+    test:
+        if: github.event.pull_request.draft == false
+        runs-on: ubuntu-latest
+        steps:
+            - name: "Checkout repository"
+              uses: actions/checkout@v4
+
+            - name: "Setup dependencies"
+              uses: ./.github/actions/setup
+
+            - name: "Run unit tests"
+              run: bun run test
+
+    type-check:
+        if: github.event.pull_request.draft == false
+        runs-on: ubuntu-latest
+        steps:
+            - name: "Checkout repository"
+              uses: actions/checkout@v4
+
+            - name: "Setup dependencies"
+              uses: ./.github/actions/setup
+
+            - name: "Run type check"
+              run: bun run type-check
+
+    lint:
+        if: github.event.pull_request.draft == false
+        runs-on: ubuntu-latest
+        steps:
+            - name: "Checkout repository"
+              uses: actions/checkout@v4
+
+            - name: "Setup dependencies"
+              uses: ./.github/actions/setup
+
+            - name: "Run lint"
+              run: bun run lint
