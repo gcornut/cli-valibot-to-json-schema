@@ -41,7 +41,6 @@ jobs:
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
               run: |
-                  npm deprecate @gcornut/cli-valibot-to-json-schema@0.1.1-snapshot.0 "snapshot"
                   set -x # verbose
                   name=$(npm pkg get name | sed 's/"//g')
                   previousVersion=$(npm show $name@snapshot version)
@@ -51,15 +50,15 @@ jobs:
                   echo "previousVersion=$previousVersion" >> $GITHUB_OUTPUT
 
             - name: "Publish"
-              run: npm publish --provenance --access public --tag snapshot
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+              run: npm publish --provenance --access public --tag snapshot
 
             - name: "Deprecate previous snapshot"
               if: ${{ steps.version.outputs.previousVersion != '' }}
-              run: npm deprecate ${{ steps.version.outputs.name }}@${{ steps.version.outputs.previousVersion }} "snapshot"
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+              run: npm deprecate ${{ steps.version.outputs.name }}@${{ steps.version.outputs.previousVersion }} "snapshot"
 
     publish-release:
         if: ${{ inputs.releaseType != '' && github.ref_name == 'main'  }}
@@ -81,6 +80,8 @@ jobs:
                   install_node: true
 
             - name: "Bump version"
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
               run: |
                   set -x
                   git config --global user.name "github-actions"
@@ -90,10 +91,8 @@ jobs:
 
                   git push
                   git push --tags
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
             - name: "Publish"
-              run: npm publish --provenance --access public ${{ inputs.releaseType == 'prerelease' && '--tag prerelease' || '' }}
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+              run: npm publish --provenance --access public ${{ inputs.releaseType == 'prerelease' && '--tag prerelease' || '' }}
