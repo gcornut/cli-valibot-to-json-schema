@@ -43,11 +43,9 @@ jobs:
               run: |
                   set -x # verbose
                   name=$(npm pkg get name | sed 's/"//g')
-                  previousReleaseVersion=$(npm show ${name}@latest version)
-                  previousSnapshotVersion=$(npm show ${name}@snapshot version)
 
                   # Get the latest version between release and snapshot as the base for the next snapshot
-                  previousVersion=$(echo "${previousReleaseVersion}\n${previousSnapshotVersion}" | sort -V | tail -n1)
+                  previousVersion=$(cat <(npm show ${name}@latest version) <(npm show ${name}@snapshot version) | sort -V | tail -n1)
 
                   # Set base version and create a new snapshot version from it
                   npm pkg set version=$previousVersion
