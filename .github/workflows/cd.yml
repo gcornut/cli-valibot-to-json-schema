@@ -43,15 +43,16 @@ jobs:
               run: |
                   set -x # verbose
                   name=$(npm pkg get name | sed 's/"//g')
+                  previousSnapshotVersion=$(npm show ${name}@snapshot version)
 
                   # Get the latest version between release and snapshot as the base for the next snapshot
-                  previousVersion=$(cat <(npm show ${name}@latest version) <(npm show ${name}@snapshot version) | sort -V | tail -n1)
+                  previousVersion=$(cat <(npm show ${name}@latest version) <(echo ${previousSnapshotVersion}) | sort -V | tail -n1)
 
                   # Set base version and create a new snapshot version from it
-                  npm pkg set version=$previousVersion
+                  npm pkg set version=${previousVersion}
                   npm version prerelease --preid snapshot --git-tag-version false
-                  echo "name=$name" >> $GITHUB_OUTPUT
-                  echo "previousVersion=$previousVersion" >> $GITHUB_OUTPUT
+                  echo "name=${name}" >> $GITHUB_OUTPUT
+                  echo "previousVersion=${previousSnapshotVersion}" >> $GITHUB_OUTPUT
 
             - name: "Publish"
               env:
