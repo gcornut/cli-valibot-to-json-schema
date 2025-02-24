@@ -51,7 +51,7 @@
         "esbuild": "^0.25.0",
         "esbuild-runner": "^2.2.2",
         "eslint": "^9.10.0",
-        "globals": "^15.9.0",
+        "globals": "^16.0.0",
         "lodash": "^4.17.21",
         "prettier": "^3.3.3",
         "safe-stable-stringify": "^2.5.0",
