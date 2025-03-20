@@ -33,7 +33,7 @@
         "fix": "bun run format --write && bun run lint --fix"
     },
     "dependencies": {
-        "@valibot/to-json-schema": "^0.2.0"
+        "@valibot/to-json-schema": "^1.0.0"
     },
     "peerDependencies": {
         "valibot": ">= 0.31.0"
