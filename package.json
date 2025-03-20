@@ -42,7 +42,7 @@
         "esbuild-runner": ">= 2.2.2"
     },
     "devDependencies": {
-        "@eslint/js": "^9.10.0",
+        "@eslint/js": "^9.22.0",
         "@types/json-schema": "^7.0.15",
         "@types/lodash": "^4.17.7",
         "@types/node": "^22.5.2",
@@ -50,14 +50,14 @@
         "commander": "^13.0.0",
         "esbuild": "^0.25.0",
         "esbuild-runner": "^2.2.2",
-        "eslint": "^9.10.0",
+        "eslint": "^9.22.0",
         "globals": "^16.0.0",
         "lodash": "^4.17.21",
         "prettier": "^3.3.3",
         "safe-stable-stringify": "^2.5.0",
         "tsup": "^8.2.4",
         "typescript": "5.8.2",
-        "typescript-eslint": "^8.5.0",
+        "typescript-eslint": "^8.27.0",
         "valibot": "^0.42.0",
         "vitest": "3.0.9"
     }
