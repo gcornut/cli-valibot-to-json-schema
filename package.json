@@ -28,7 +28,7 @@
         "test": "vitest",
         "type-check": "tsc -p tsconfig.json",
         "lint": "eslint",
-        "format": "prettier .",
+        "format": "prettier -w .",
         "check": "bun run type-check && bun run lint && bun run test --run",
         "fix": "bun run format --write && bun run lint --fix"
     },
@@ -53,7 +53,7 @@
         "eslint": "^9.22.0",
         "globals": "^16.0.0",
         "lodash": "^4.17.21",
-        "prettier": "^3.3.3",
+        "prettier": "^3.5.3",
         "safe-stable-stringify": "^2.5.0",
         "tsup": "^8.2.4",
         "typescript": "5.8.2",
