@@ -92,7 +92,7 @@ program
             // Convert
             let jsonSchema = toJsonSchema(schema || any(), {
                 definitions,
-                force,
+                errorMode: force ? 'warn' : undefined,
             }) as JSON;
 
             // Replace definitions keys (if needed)

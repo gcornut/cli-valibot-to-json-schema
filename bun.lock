@@ -4,7 +4,7 @@
     "": {
       "name": "@gcornut/cli-valibot-to-json-schema",
       "dependencies": {
-        "@valibot/to-json-schema": "^0.2.0",
+        "@valibot/to-json-schema": "^1.0.0",
       },
       "devDependencies": {
         "@eslint/js": "^9.22.0",
@@ -200,7 +200,7 @@
 
     "@typescript-eslint/visitor-keys": ["@typescript-eslint/visitor-keys@8.27.0", "", { "dependencies": { "@typescript-eslint/types": "8.27.0", "eslint-visitor-keys": "^4.2.0" } }, "sha512-WsXQwMkILJvffP6z4U3FYJPlbf/j07HIxmDjZpbNvBJkMfvwXj5ACRkkHwBDvLBbDbtX5TdU64/rcvKJ/vuInQ=="],
 
-    "@valibot/to-json-schema": ["@valibot/to-json-schema@0.2.0", "", { "peerDependencies": { "valibot": ">=0.31.0 <1" } }, "sha512-xWaiV2iW6MKdaA02kCh3wtMygAzmsNeN5tqMe1elKJzm4lrrLhhYGP5wEgAbtRlob+/ohq2CawNDUHqUT2QZKA=="],
+    "@valibot/to-json-schema": ["@valibot/to-json-schema@1.0.0", "", { "peerDependencies": { "valibot": "^1.0.0" } }, "sha512-/9crJgPptVsGCL6X+JPDQyaJwkalSZ/52WuF8DiRUxJgcmpNdzYRfZ+gqMEP8W3CTVfuMWPqqvIgfwJ97f9Etw=="],
 
     "@vitest/coverage-v8": ["@vitest/coverage-v8@3.0.5", "", { "dependencies": { "@ampproject/remapping": "^2.3.0", "@bcoe/v8-coverage": "^1.0.2", "debug": "^4.4.0", "istanbul-lib-coverage": "^3.2.2", "istanbul-lib-report": "^3.0.1", "istanbul-lib-source-maps": "^5.0.6", "istanbul-reports": "^3.1.7", "magic-string": "^0.30.17", "magicast": "^0.3.5", "std-env": "^3.8.0", "test-exclude": "^7.0.1", "tinyrainbow": "^2.0.0" }, "peerDependencies": { "@vitest/browser": "3.0.5", "vitest": "3.0.5" }, "optionalPeers": ["@vitest/browser"] }, "sha512-zOOWIsj5fHh3jjGwQg+P+J1FW3s4jBu1Zqga0qW60yutsBtqEqNEJKWYh7cYn1yGD+1bdPsPdC/eL4eVK56xMg=="],
 

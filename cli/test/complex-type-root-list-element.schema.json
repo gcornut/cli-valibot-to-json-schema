@@ -15,8 +15,7 @@
                 }
             },
             "required": ["type", "children"],
-            "type": "object",
-            "additionalProperties": false
+            "type": "object"
         },
         "ListItemElement": {
             "properties": {
@@ -38,8 +37,7 @@
                 }
             },
             "required": ["type", "children"],
-            "type": "object",
-            "additionalProperties": false
+            "type": "object"
         }
     }
 }
