@@ -6,7 +6,10 @@ import stableStringify from "safe-stable-stringify";
 import { any, type GenericSchema } from "valibot";
 
 import { toJsonSchema } from "@valibot/to-json-schema";
-import { isSchema } from "./utils";
+
+import { isSchema } from "./utils/isSchema";
+import { replaceDefinitionKey } from "./utils/replaceDefinitionKey";
+import type { JSON } from "./utils/JSON";
 
 const program = new Command();
 
@@ -31,10 +34,21 @@ program
         "--jsonIndent <nb_spaces>",
         "JSON indent characters (defaults to 2 spaces).",
     )
+    .option(
+        "--definitionsKey <definitions_key>",
+        "JSON schema definitions key (defaults '$defs').",
+    )
     .action(
         (
             sourcePath,
-            { type, definitions: definitionsPath, out, force, jsonIndent },
+            {
+                type,
+                definitions: definitionsPath,
+                out,
+                force,
+                jsonIndent,
+                definitionsKey,
+            },
         ) => {
             try {
                 // Enable auto transpile of ESM & TS modules required
@@ -76,20 +90,28 @@ program
             }
 
             // Convert
-            const jsonSchema = toJsonSchema(schema || any(), {
+            let jsonSchema = toJsonSchema(schema || any(), {
                 definitions,
                 force,
-            });
+            }) as JSON;
+
+            // Replace definitions keys (if needed)
+            if (definitionsKey)
+                jsonSchema = replaceDefinitionKey(jsonSchema, definitionsKey);
+
+            // Stringify
             const jsonSchemaString = stableStringify(
                 jsonSchema,
                 null,
                 Number.parseInt(jsonIndent) || jsonIndent || 2,
             );
+
+            // Output
             if (out) {
-                // Output to file
+                // to file
                 fs.writeFileSync(out, jsonSchemaString);
             } else {
-                // Output to stdout
+                // to stdout
                 process.stdout.write(`${jsonSchemaString}\n`);
             }
         },
