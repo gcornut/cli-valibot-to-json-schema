@@ -82,6 +82,14 @@ describe("main schema and definitions", () => {
             ),
         }),
     );
+
+    test(
+        "Convert and replace the definitions key",
+        testCase({
+            run: "./complex-type.valibot.ts --definitionsKey definitions",
+            expectedOutput: readFile("./complex-type-definitions.schema.json"),
+        }),
+    );
 });
 
 describe("Handle conversion error", () => {

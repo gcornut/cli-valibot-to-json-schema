@@ -83,3 +83,5 @@ Use `-d <type>` option to select the definitions from the module exports (instea
 Example: `-d foo.bar` will get the property `bar` on the `foo` export of the input module.
 
 Use `--force` to ignore unsupported schemas and validations and still provide an output.
+
+Use `--definitionsKey` to replace the default `$defs` definitions key with a custom one (ex: `definitions` like in previous version of JSONSchema).
