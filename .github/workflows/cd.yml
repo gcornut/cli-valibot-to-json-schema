@@ -1,17 +1,7 @@
 # Continuous Delivery: Publish on NPM
 name: "CD"
 
-on:
-    push:
-        branches:
-            - main
-    workflow_dispatch:
-        inputs:
-            releaseType:
-                description: "Release type"
-                required: true
-                default: "prerelease"
-                type: string
+on: pull_request
 
 concurrency:
     group: "${{ github.workflow }}-${{ github.ref_name }}"
@@ -22,7 +12,7 @@ jobs:
         uses: ./.github/workflows/ci.yml
 
     publish-release-or-snapshot:
-        if: ${{ inputs.releaseType == '' }}
+        if: ${{ 'minor' == '' }}
         needs: ci
         runs-on: ubuntu-latest
         permissions:
@@ -86,12 +76,8 @@ jobs:
               run: npm deprecate ${{ steps.version.outputs.name }}@${{ steps.version.outputs.previousVersion }} "snapshot"
 
     prepare-release:
-        if: ${{ inputs.releaseType != '' && github.ref_name == 'main'  }}
-        needs: ci
         runs-on: ubuntu-latest
-        permissions:
-            id-token: write
-            contents: write
+        permissions: write-all
         steps:
             - name: "Checkout repository"
               uses: actions/checkout@v4
@@ -107,36 +93,20 @@ jobs:
             - name: "Bump version"
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+                  GH_TOKEN: ${{ secrets.GH_PRRELEASE }}
               run: |
                   set -x
                   git config --global user.name "github-actions"
                   git config --global user.email "github-actions@users.noreply.github.com"
+                  
+                  branch="release_${{ inputs.releaseType }}"
+                  git checkout -b "${branch}"                  
 
                   # Version & commit
-                  npm version ${{ inputs.releaseType }} --m "Release v%s" ${{ inputs.releaseType == 'prerelease' && '--preid rc' || '' }}
-
-                  title=$(git log -1 --pretty=%B)                
-                  branch=$(echo ${title} | tr ' ' '_' | tr '[:upper:]' '[:lower:]')
-                  git checkout -b ${branch}
-
-            - name: "Publish"
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-              run: npm publish --provenance --access public ${{ inputs.releaseType == 'prerelease' && '--tag prerelease' || '' }}
-
-            - name: "Create pull request"
-              uses: actions/github-script@v6
-              with:
-                  github-token: "${{ secrets.GITHUB_TOKEN }}"
-                  script: |
-                      github.rest.pulls.create({
-                          owner: context.repo.owner,
-                          repo: context.repo.repo,
-                          base: 'master',
-                          head: '${{ steps.version.outputs.branch }}',
-                          title: '${{ steps.version.outputs.title }}',
-                          body: '${{ steps.version.outputs.title }}'
-                              + 'Review, test and merge to publish to NPM.\n\n'
-                              + 'Triggered by @${{ github.actor }}',
-                          draft: false,
-                      });
+                  npm version ${{ 'minor' }} --m "Release v%s" ${{ 'minor' == 'prerelease' && '--preid rc' || '' }}
+                  
+                  # Push
+                  git push origin "${branch}"
+                  
+                  # Open PR
+                  gh pr create --fill-first 
