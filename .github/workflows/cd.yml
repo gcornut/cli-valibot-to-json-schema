@@ -21,12 +21,13 @@ jobs:
     ci:
         uses: ./.github/workflows/ci.yml
 
-    publish-snapshot:
+    publish-release-or-snapshot:
         if: ${{ inputs.releaseType == '' }}
         needs: ci
         runs-on: ubuntu-latest
         permissions:
             id-token: write
+            contents: write
         steps:
             - name: "Checkout repository"
               uses: actions/checkout@v4
@@ -42,22 +43,40 @@ jobs:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
               run: |
                   set -x # verbose
-                  name=$(npm pkg get name | sed 's/"//g')
-                  previousSnapshotVersion=$(npm show ${name}@snapshot version)
+                  message=$(git show -s --format=%s)
+                  version=$(echo $message | egrep -o '[0-9]+\.[0-9]+\.[0-9]+' || true)
 
-                  # Get the latest version between release and snapshot as the base for the next snapshot
-                  previousVersion=$(cat <(npm show ${name}@latest version) <(echo ${previousSnapshotVersion}) | sort -V | tail -n1)
+                  if [[ "$message" == 'Release v'* ]] && [ -n "$version" ]; then
+                      # Release version
 
-                  # Set base version and create a new snapshot version from it
-                  npm pkg set version=${previousVersion}
-                  npm version prerelease --preid snapshot --git-tag-version false
-                  echo "name=${name}" >> $GITHUB_OUTPUT
-                  echo "previousVersion=${previousSnapshotVersion}" >> $GITHUB_OUTPUT
+                      # Create tag
+                      tag="v${version}"
+                      echo "tag=$tag" >> $GITHUB_OUTPUT
+                      git tag "$tag"
+
+                      # Push tag
+                      git push origin "$tag"
+                  else 
+                      # Snapshot version
+                      name=$(npm pkg get name | sed 's/"//g')
+                      previousSnapshotVersion=$(npm show ${name}@snapshot version)
+                      
+                      # Get the latest version between release and snapshot as the base for the next snapshot
+                      previousVersion=$(cat <(npm show ${name}@latest version) <(echo ${previousSnapshotVersion}) | sort -V | tail -n1)
+                      
+                      # Set base version and create a new snapshot version from it
+                      npm pkg set version=${previousVersion}
+                      npm version prerelease --preid snapshot --git-tag-version false
+                      echo "name=${name}" >> $GITHUB_OUTPUT
+                      echo "previousVersion=${previousSnapshotVersion}" >> $GITHUB_OUTPUT
+
+                      echo "publishTag='--tag snapshot'" >> $GITHUB_OUTPUT
+                  fi
 
             - name: "Publish"
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-              run: npm publish --provenance --access public --tag snapshot
+              run: npm publish --provenance --access public ${{ steps.version.outputs.publishTag }}
 
             - name: "Deprecate previous snapshot"
               if: ${{ steps.version.outputs.previousVersion != '' }}
@@ -65,13 +84,11 @@ jobs:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
               run: npm deprecate ${{ steps.version.outputs.name }}@${{ steps.version.outputs.previousVersion }} "snapshot"
 
-    publish-release:
+    prepare-release:
         if: ${{ inputs.releaseType != '' && github.ref_name == 'main'  }}
         needs: ci
         runs-on: ubuntu-latest
-        permissions:
-            id-token: write
-            contents: write
+        permissions: write-all
         steps:
             - name: "Checkout repository"
               uses: actions/checkout@v4
@@ -87,17 +104,20 @@ jobs:
             - name: "Bump version"
               env:
                   NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+                  GH_TOKEN: ${{ secrets.GH_PRRELEASE }}
               run: |
                   set -x
                   git config --global user.name "github-actions"
                   git config --global user.email "github-actions@users.noreply.github.com"
 
+                  branch="release_${{ inputs.releaseType }}"
+                  git checkout -b "${branch}"                  
+
+                  # Version & commit
                   npm version ${{ inputs.releaseType }} --m "Release v%s" ${{ inputs.releaseType == 'prerelease' && '--preid rc' || '' }}
 
-                  git push
-                  git push --tags
+                  # Push
+                  git push origin "${branch}"
 
-            - name: "Publish"
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-              run: npm publish --provenance --access public ${{ inputs.releaseType == 'prerelease' && '--tag prerelease' || '' }}
+                  # Open PR
+                  gh pr create --fill-first
