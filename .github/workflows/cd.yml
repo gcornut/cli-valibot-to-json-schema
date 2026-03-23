@@ -6,9 +6,9 @@ on:
         branches:
             - main
         paths:
-            - '**.ts'
-            - '**.js'
-            - '**.json'
+            - "**.ts"
+            - "**.js"
+            - "**.json"
     workflow_dispatch:
         inputs:
             releaseType:
@@ -81,9 +81,7 @@ jobs:
                   fi
 
             - name: "Publish"
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-              run: npm publish --provenance --access public --tag ${{ steps.version.outputs.publishTag }}
+              run: npm publish --access public --tag ${{ steps.version.outputs.publishTag }}
 
             - name: "Deprecate previous snapshot"
               if: ${{ steps.version.outputs.previousVersion != '' }}
