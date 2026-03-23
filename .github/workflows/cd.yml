@@ -43,8 +43,6 @@ jobs:
 
             - name: "Create version"
               id: version
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
               run: |
                   set -x # verbose
                   message=$(git show -s --format=%s)
@@ -83,12 +81,6 @@ jobs:
             - name: "Publish"
               run: npm publish --access public --tag ${{ steps.version.outputs.publishTag }}
 
-            - name: "Deprecate previous snapshot"
-              if: ${{ steps.version.outputs.previousVersion != '' }}
-              env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-              run: npm deprecate ${{ steps.version.outputs.name }}@${{ steps.version.outputs.previousVersion }} "snapshot"
-
     prepare-release:
         if: ${{ inputs.releaseType != '' && github.ref_name == 'main'  }}
         needs: ci
@@ -108,7 +100,6 @@ jobs:
 
             - name: "Bump version"
               env:
-                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
                   GH_TOKEN: ${{ secrets.GH_PRRELEASE }}
               run: |
                   set -x

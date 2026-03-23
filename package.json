@@ -20,6 +20,9 @@
         "bin"
     ],
     "bin": "bin/index.js",
+    "engines": {
+        "node": ">=18"
+    },
     "sideEffects": false,
     "scripts": {
         "build": "tsup",
