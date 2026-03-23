@@ -30,7 +30,7 @@
         "esbuild-runner": ">= 2.2.2",
       },
       "peerDependencies": {
-        "valibot": ">= 0.31.0",
+        "valibot": ">= 1.0.0",
       },
     },
   },
