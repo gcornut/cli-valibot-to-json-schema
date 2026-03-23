@@ -3,7 +3,7 @@ import path from "node:path";
 import { Command } from "commander";
 import get from "lodash/get";
 import stableStringify from "safe-stable-stringify";
-import { any, type GenericSchema } from "valibot";
+import { any, type BaseIssue, type BaseSchema } from "valibot";
 
 import { toJsonSchema } from "@valibot/to-json-schema";
 
@@ -61,7 +61,10 @@ program
 
             // Load the source path module
             const module = require(path.resolve(sourcePath));
-            let definitions: Record<string, GenericSchema> = {};
+            let definitions: Record<
+                string,
+                BaseSchema<unknown, unknown, BaseIssue<unknown>>
+            > = {};
             if (definitionsPath) {
                 definitions = get(module, definitionsPath);
                 if (!definitions) {
