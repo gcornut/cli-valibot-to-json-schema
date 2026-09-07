@@ -49,7 +49,7 @@
         "@types/json-schema": "^7.0.15",
         "@types/lodash": "^4.17.24",
         "@types/node": "^25.0.2",
-        "@vitest/coverage-v8": "^4.1.0",
+        "@vitest/coverage-v8": "^5.0.0",
         "commander": "^14.0.3",
         "esbuild": "^0.28.1",
         "esbuild-runner": "^2.2.2",
